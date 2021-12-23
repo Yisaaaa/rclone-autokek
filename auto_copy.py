@@ -15,12 +15,15 @@ ARGS = parser.parse_args()
 
 
 def rclone_copy(source, dest, file):
-    subprocess.run(['rclone', 'copy', '-P', f'{source}/{file}', dest])
+    source = source + file
+    subprocess.run(['rclone', 'copy', '-P', source, dest])
+    print(file + ' copied successfully.\n\n\n')
+
 
 def read_txt(path):
     try:
         with open(txt_path) as fp:
-            files = fp.readlines()
+            files = [file.strip() for file in fp.readlines()]
     except FileNotFoundError:
         print(txt_path + ' does not exists')
         sys.exit()
@@ -42,4 +45,3 @@ if __name__ == '__main__':
     files = read_txt(txt_path)
     for file in files:
         rclone_copy(source, dest, file)
-        print(f'Done copying {file}.\n\n\n\n')
