@@ -13,20 +13,33 @@ parser.add_argument('Txt', help='path to txt file')
 
 ARGS = parser.parse_args()
 
-source, dest, txt_path = ARGS.Source, ARGS.Destination, ARGS.Txt
 
+def rclone_copy(source, dest, file):
+    subprocess.run(['rclone', 'copy', '-P', f'{source}/{file}', dest])
 
+def read_txt(path):
+    try:
+        with open(txt_path) as fp:
+            files = fp.readlines()
+    except FileNotFoundError:
+        print(txt_path + ' does not exists')
+        sys.exit()
+    except IsADirectoryError:
+        print(txt_path + ' is a directory')
+        sys.exit()
+    return files
 
-if not all([os.path.isdir(path) for path in [source, dest]]):
-    not_path = source if not os.path.isdir(source) else dest
-    print(not_path + ' is not found')
+def check_paths(source, dest):
+    if not all([os.path.isdir(path) for path in [source, dest]]):
+        not_path = source if not os.path.isdir(source) else dest
+        print(not_path + ' is not found')
+        sys.exit()
 
-try:
-    with open(txt_path) as fp:
-        files = fp.readlines()
-except FileNotFoundError:
-    print(txt_path + ' does not exists')
-    sys.exit()
-except IsADirectoryError:
-    print(txt_path + ' is a directory')
-    sys.exit()
+if __name__ == '__main__':
+    source, dest, txt_path = ARGS.Source, ARGS.Destination, ARGS.Txt
+
+    check_paths(source, dest)
+    files = read_txt(txt_path)
+    for file in files:
+        rclone_copy(source, dest, file)
+        print(f'Done copying {file}.\n\n\n\n')
